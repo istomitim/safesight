@@ -1,0 +1,125 @@
+{% extends "scanner/base.html" %}
+
+{% block title %}SafeSight — Scanner{% endblock %}
+
+{% block content %}
+
+
+ {# BLOK 1. ACTUAL CARD #}
+
+
+{% if last_result %}
+<div class="result-card" style="flex-direction:column; align-items:stretch;">
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div class="result-left">
+            {% if last_result.type == "file" %}
+                <i class="ti ti-file"></i>
+            {% else %}
+                <i class="ti ti-link"></i>
+            {% endif %}
+            <div>
+                <div class="result-name">{{ last_result.name }}</div>
+                <div class="result-sub">just now</div>
+            </div>
+        </div>
+        <span class="badge {{ last_result.badge }}">{{ last_result.verdict }}</span>
+    </div>
+
+    {% if last_result.screenshot %}
+    <img src="/media/{{ last_result.screenshot }}" alt="screenshot"
+         style="width:100%; border-radius:8px; margin-top:14px; border:1px solid #1f2937;">
+    {% endif %}
+</div>
+{% endif %}
+
+{# BLOK 2: Swith buttons #}
+
+<div class="card">
+    <div class="tabs">
+        <button type="button" class="tab-btn active" data-tab="file">
+            <i class="ti ti-file"></i> File
+        </button>
+        <button type="button" class="tab-btn" data-tab="url">
+            <i class="ti ti-link"></i> Link
+        </button>
+    </div>
+
+    <div id="tab-file" class="tab-panel">
+        <p style="color:#8b949e; margin-bottom:1rem;">Upload a file to scan it for malware.</p>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="form_type" value="file">
+            <label for="fileInput" class="file-drop">
+                <i class="ti ti-cloud-upload"></i>
+                <span id="fileLabel">Choose a file or drag it here</span>
+            </label>
+            <input type="file" name="file" id="fileInput" required hidden>
+            <button type="submit"><i class="ti ti-shield-check"></i> Check file</button>
+        </form>
+    </div>
+
+    <div id="tab-url" class="tab-panel" style="display:none;">
+        <p style="color:#8b949e; margin-bottom:1rem;">Check a suspicious link without opening it yourself.</p>
+        <form method="post">
+            {# required security token for every POST form #}
+            {% csrf_token %}
+            {# connection with "view" #}
+            <input type="hidden" name="form_type" value="url">
+            <input type="url" name="url" placeholder="https://example.com" required
+                   style="width:100%; padding:12px; border-radius:8px; border:1px solid #30363d; background:#0d1117; color:#e6edf3; margin-bottom:1rem;">
+            <button type="submit"><i class="ti ti-shield-check"></i> Check link</button>
+        </form>
+    </div>
+</div>
+
+{# BLOK 3: Recent search #}
+
+<h2>Recent scans</h2>
+<div class="card">
+    <ul style="list-style:none;">
+        {% for scan in recent %}
+        <li style="padding:6px 0;">
+            {% if scan.file_name %}
+                <i class="ti ti-file" style="color:#8b949e;"></i>
+                {{ scan.file_name }} —
+                <span class="badge {{ scan.badge_class }}">{{ scan.verdict }}</span>
+            {% else %}
+                <i class="ti ti-link" style="color:#8b949e;"></i>
+                {{ scan.url }} —
+                <span class="badge {{ scan.badge_class }}">{{ scan.verdict }}</span>
+                {% if scan.screenshot %}
+                <div><img src="/media/{{ scan.screenshot }}" alt="screenshot"
+                          style="max-width:300px; border-radius:8px; margin-top:8px; border:1px solid #1f2937;"></div>
+                {% endif %}
+            {% endif %}
+        </li>
+        {% empty %}
+        <li style="color:#8b949e;">No scans yet.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+{# BLOK 4: JavaScript, show chosen file name, switch tabs without reload #} 
+
+<script>
+    
+    const fileInput = document.getElementById("fileInput");
+    const fileLabel = document.getElementById("fileLabel");
+    fileInput.addEventListener("change", function () {
+        if (fileInput.files.length > 0) {
+            fileLabel.textContent = fileInput.files[0].name;
+        }
+    });
+
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    tabButtons.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            tabButtons.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            document.getElementById("tab-file").style.display = "none";
+            document.getElementById("tab-url").style.display = "none";
+            document.getElementById("tab-" + btn.dataset.tab).style.display = "block";
+        });
+    });
+</script>
+{% endblock %}

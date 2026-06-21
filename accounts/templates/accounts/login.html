@@ -1,0 +1,25 @@
+{% extends "scanner/base.html" %}
+
+{% block title %}Login — SafeSight{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="auth-head">
+            <i class="ti ti-shield-lock"></i>
+            <div class="auth-title">Welcome back</div>
+            <div class="auth-sub">Sign in to SafeSight</div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit"><i class="ti ti-login"></i> Sign in</button>
+        </form>
+
+        <div class="auth-foot">
+            No account? <a href="{% url 'register' %}">Register</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

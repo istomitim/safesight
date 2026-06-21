@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  {# responsive on mobile #}
+    <title>{% block title %}SafeSight{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="brand">
+            <i class="ti ti-shield-check"></i>
+            <div class="brand-name">SafeSight</div>
+            <div class="brand-sub">file &amp; link safety scanner</div>
+        </div>
+        <nav class="site-nav">
+            {% if user.is_authenticated %}
+                <a href="{% url 'history' %}"><i class="ti ti-history"></i> History</a>
+                <span class="user-chip"><span class="avatar">{{ user.username|first|upper }}</span>{{ user.username }}</span>
+                <a href="{% url 'logout' %}" class="btn-soft"><i class="ti ti-logout"></i> Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+                <a href="{% url 'register' %}" class="btn-soft">Register</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    {% block content %}{% endblock %}
+</body>
+</html>

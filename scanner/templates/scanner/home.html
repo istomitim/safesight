@@ -30,14 +30,13 @@
 </div>
 {% endif %}
 
-{# BLOK 2: Tabs + forms — React component #}
-{# The JSX is stored in a plain block and compiled manually with the classic #}
-{# runtime, so Babel does not generate an `import` (illegal in a normal script). #}
+{# BLOK 2: Tabs + forms (REACT) #} 
+
 <div id="scanner-tabs"></div>
 
 <script type="text/plain" id="scanner-source">
 function ScannerTabs() {
-    // state: which tab is active ("file" or "url")
+    // which tab is active 
     const [tab, setTab] = React.useState("file");
 
     return (
@@ -95,8 +94,6 @@ ReactDOM.createRoot(document.getElementById("scanner-tabs")).render(<ScannerTabs
 </script>
 
 <script>
-    // Compile the JSX above with the classic runtime (uses React.createElement,
-    // the global React), so no `import` statement is generated.
     (function () {
         var source = document.getElementById("scanner-source").textContent;
         var compiled = Babel.transform(source, { presets: [["react", { runtime: "classic" }]] }).code;

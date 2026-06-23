@@ -1,3 +1,4 @@
+/*  Theme colours  */
 :root {
     --bg: #0d1117;
     --surface: #161b22;
@@ -8,6 +9,7 @@
     --accent-hover: #1d4ed8;
 }
 
+/*  base layout  */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -24,6 +26,7 @@ body {
     padding: 2rem 1.5rem;
 }
 
+/* --- Headings n links --- */
 h1, h2 {
     color: var(--text);
     margin-bottom: 1rem;
@@ -45,6 +48,7 @@ a:hover {
     text-decoration: underline;
 }
 
+/*  Card  */
 .card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -53,11 +57,7 @@ a:hover {
     margin-bottom: 1.25rem;
 }
 
-input[type="file"] {
-    color: var(--muted);
-    margin: 0.5rem 0;
-}
-
+/*  Buttons  */
 button {
     background: var(--accent);
     color: #fff;
@@ -73,6 +73,17 @@ button:hover {
     background: var(--accent-hover);
 }
 
+button i {
+    margin-right: 4px;
+    vertical-align: -2px;
+}
+
+input[type="file"] {
+    color: var(--muted);
+    margin: 0.5rem 0;
+}
+
+/*  History  */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -99,6 +110,18 @@ tr:last-child td {
     border-bottom: none;
 }
 
+.total-note {
+    color: var(--muted);
+    margin-bottom: 1rem;
+}
+
+.hash-cell {
+    font-family: monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+/*  verdict badges  */
 .badge {
     display: inline-block;
     font-size: 0.78rem;
@@ -111,7 +134,7 @@ tr:last-child td {
 .badge-danger { background: rgba(239,68,68,0.15); color: #f85149; }
 .badge-unknown { background: rgba(139,148,158,0.15); color: #8b949e; }
 
-
+/*  File upload zone  */
 .file-drop {
     display: flex;
     align-items: center;
@@ -137,11 +160,7 @@ tr:last-child td {
     color: var(--accent);
 }
 
-button i {
-    margin-right: 4px;
-    vertical-align: -2px;
-}
-
+/* --- Site header --- */
 .site-header {
     text-align: center;
     margin-bottom: 1.5rem;
@@ -188,6 +207,7 @@ button i {
     text-decoration: none;
 }
 
+/* --- (avatar + name) --- */
 .user-chip {
     display: inline-flex;
     align-items: center;
@@ -219,16 +239,23 @@ button i {
     background: #2a3441;
 }
 
+/*  Result card  */
 .result-card {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: stretch;
     background: var(--surface);
     border: 1px solid var(--border);
     border-left: 3px solid var(--accent);
     border-radius: 10px;
     padding: 14px 18px;
     margin-bottom: 1.25rem;
+}
+
+.result-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .result-left {
@@ -253,6 +280,15 @@ button i {
     font-size: 0.78rem;
 }
 
+.result-shot {
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 14px;
+    border: 1px solid var(--border);
+}
+
+
+/*  File / Link switch  */
 .tabs {
     display: flex;
     gap: 8px;
@@ -280,6 +316,51 @@ button i {
     border-color: var(--accent);
 }
 
+.tab-panel.hidden {
+    display: none;
+}
+
+/* --- URL input --- */
+.muted-note {
+    color: var(--muted);
+    margin-bottom: 1rem;
+}
+
+.url-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #30363d;
+    background: var(--bg);
+    color: var(--text);
+    margin-bottom: 1rem;
+}
+
+/*  Recent scans list  */
+.scan-list {
+    list-style: none;
+}
+
+.scan-list li {
+    padding: 6px 0;
+}
+
+.scan-icon {
+    color: var(--muted);
+}
+
+.scan-shot {
+    max-width: 300px;
+    border-radius: 8px;
+    margin-top: 8px;
+    border: 1px solid var(--border);
+}
+
+.empty-note {
+    color: var(--muted);
+}
+
+/* --- Auth page --- */
 .auth-wrap {
     display: flex;
     justify-content: center;
@@ -317,7 +398,6 @@ button i {
     margin-top: 2px;
 }
 
-/* style the inputs Django generates inside the form */
 .auth-card form input {
     width: 100%;
     padding: 10px 12px;
@@ -350,7 +430,7 @@ button i {
     margin-top: 16px;
 }
 
-/* hide Django's default help text under password fields to keep it clean */
+/* hide Django's default password help text */
 .auth-card .helptext,
 .auth-card ul {
     font-size: 0.72rem;

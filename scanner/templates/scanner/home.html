@@ -4,13 +4,12 @@
 
 {% block content %}
 
+<script>window.CSRF_TOKEN = "{{ csrf_token }}";</script>
 
- {# BLOK 1. ACTUAL CARD #}
-
-
+{# BLOK 1. ACTUAL CARD #}
 {% if last_result %}
-<div class="result-card" style="flex-direction:column; align-items:stretch;">
-    <div style="display:flex; align-items:center; justify-content:space-between;">
+<div class="result-card">
+    <div class="result-head">
         <div class="result-left">
             {% if last_result.type == "file" %}
                 <i class="ti ti-file"></i>
@@ -26,100 +25,109 @@
     </div>
 
     {% if last_result.screenshot %}
-    <img src="/media/{{ last_result.screenshot }}" alt="screenshot"
-         style="width:100%; border-radius:8px; margin-top:14px; border:1px solid #1f2937;">
+    <img src="/media/{{ last_result.screenshot }}" alt="screenshot" class="result-shot">
     {% endif %}
 </div>
 {% endif %}
 
-{# BLOK 2: Swith buttons #}
+{# BLOK 2: Tabs + forms — React component #}
+{# The JSX is stored in a plain block and compiled manually with the classic #}
+{# runtime, so Babel does not generate an `import` (illegal in a normal script). #}
+<div id="scanner-tabs"></div>
 
-<div class="card">
-    <div class="tabs">
-        <button type="button" class="tab-btn active" data-tab="file">
-            <i class="ti ti-file"></i> File
-        </button>
-        <button type="button" class="tab-btn" data-tab="url">
-            <i class="ti ti-link"></i> Link
-        </button>
-    </div>
+<script type="text/plain" id="scanner-source">
+function ScannerTabs() {
+    // state: which tab is active ("file" or "url")
+    const [tab, setTab] = React.useState("file");
 
-    <div id="tab-file" class="tab-panel">
-        <p style="color:#8b949e; margin-bottom:1rem;">Upload a file to scan it for malware.</p>
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <input type="hidden" name="form_type" value="file">
-            <label for="fileInput" class="file-drop">
-                <i class="ti ti-cloud-upload"></i>
-                <span id="fileLabel">Choose a file or drag it here</span>
-            </label>
-            <input type="file" name="file" id="fileInput" required hidden>
-            <button type="submit"><i class="ti ti-shield-check"></i> Check file</button>
-        </form>
-    </div>
+    return (
+        <div className="card">
+            <div className="tabs">
+                <button type="button"
+                        className={"tab-btn" + (tab === "file" ? " active" : "")}
+                        onClick={() => setTab("file")}>
+                    <i className="ti ti-file"></i> File
+                </button>
+                <button type="button"
+                        className={"tab-btn" + (tab === "url" ? " active" : "")}
+                        onClick={() => setTab("url")}>
+                    <i className="ti ti-link"></i> Link
+                </button>
+            </div>
 
-    <div id="tab-url" class="tab-panel" style="display:none;">
-        <p style="color:#8b949e; margin-bottom:1rem;">Check a suspicious link without opening it yourself.</p>
-        <form method="post">
-            {# required security token for every POST form #}
-            {% csrf_token %}
-            {# connection with "view" #}
-            <input type="hidden" name="form_type" value="url">
-            <input type="url" name="url" placeholder="https://example.com" required
-                   style="width:100%; padding:12px; border-radius:8px; border:1px solid #30363d; background:#0d1117; color:#e6edf3; margin-bottom:1rem;">
-            <button type="submit"><i class="ti ti-shield-check"></i> Check link</button>
-        </form>
-    </div>
-</div>
+            {tab === "file" && (
+                <div>
+                    <p className="muted-note">Upload a file to scan it for malware.</p>
+                    <form method="post" encType="multipart/form-data">
+                        <input type="hidden" name="csrfmiddlewaretoken" value={window.CSRF_TOKEN} />
+                        <input type="hidden" name="form_type" value="file" />
+                        <label htmlFor="fileInput" className="file-drop">
+                            <i className="ti ti-cloud-upload"></i>
+                            <span id="fileLabel">Choose a file or drag it here</span>
+                        </label>
+                        <input type="file" name="file" id="fileInput" required hidden
+                               onChange={(e) => {
+                                   if (e.target.files.length > 0) {
+                                       document.getElementById("fileLabel").textContent = e.target.files[0].name;
+                                   }
+                               }} />
+                        <button type="submit"><i className="ti ti-shield-check"></i> Check file</button>
+                    </form>
+                </div>
+            )}
 
-{# BLOK 3: Recent search #}
+            {tab === "url" && (
+                <div>
+                    <p className="muted-note">Check a suspicious link without opening it yourself.</p>
+                    <form method="post">
+                        <input type="hidden" name="csrfmiddlewaretoken" value={window.CSRF_TOKEN} />
+                        <input type="hidden" name="form_type" value="url" />
+                        <input type="url" name="url" placeholder="https://example.com" required className="url-input" />
+                        <button type="submit"><i className="ti ti-shield-check"></i> Check link</button>
+                    </form>
+                </div>
+            )}
+        </div>
+    );
+}
 
+ReactDOM.createRoot(document.getElementById("scanner-tabs")).render(<ScannerTabs />);
+</script>
+
+<script>
+    // Compile the JSX above with the classic runtime (uses React.createElement,
+    // the global React), so no `import` statement is generated.
+    (function () {
+        var source = document.getElementById("scanner-source").textContent;
+        var compiled = Babel.transform(source, { presets: [["react", { runtime: "classic" }]] }).code;
+        eval(compiled);
+    })();
+</script>
+
+
+{# BLOK 3: Recent scans #}
 <h2>Recent scans</h2>
 <div class="card">
-    <ul style="list-style:none;">
+    <ul class="scan-list">
         {% for scan in recent %}
-        <li style="padding:6px 0;">
+        <li>
             {% if scan.file_name %}
-                <i class="ti ti-file" style="color:#8b949e;"></i>
+                <i class="ti ti-file scan-icon"></i>
                 {{ scan.file_name }} —
                 <span class="badge {{ scan.badge_class }}">{{ scan.verdict }}</span>
             {% else %}
-                <i class="ti ti-link" style="color:#8b949e;"></i>
+                <i class="ti ti-link scan-icon"></i>
                 {{ scan.url }} —
                 <span class="badge {{ scan.badge_class }}">{{ scan.verdict }}</span>
                 {% if scan.screenshot %}
-                <div><img src="/media/{{ scan.screenshot }}" alt="screenshot"
-                          style="max-width:300px; border-radius:8px; margin-top:8px; border:1px solid #1f2937;"></div>
+                <div><img src="/media/{{ scan.screenshot }}" alt="screenshot" class="scan-shot"></div>
                 {% endif %}
             {% endif %}
         </li>
         {% empty %}
-        <li style="color:#8b949e;">No scans yet.</li>
+        <li class="empty-note">No scans yet.</li>
         {% endfor %}
     </ul>
 </div>
 
-{# BLOK 4: JavaScript, show chosen file name, switch tabs without reload #} 
-
-<script>
-    
-    const fileInput = document.getElementById("fileInput");
-    const fileLabel = document.getElementById("fileLabel");
-    fileInput.addEventListener("change", function () {
-        if (fileInput.files.length > 0) {
-            fileLabel.textContent = fileInput.files[0].name;
-        }
-    });
-
-    const tabButtons = document.querySelectorAll(".tab-btn");
-    tabButtons.forEach(function (btn) {
-        btn.addEventListener("click", function () {
-            tabButtons.forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-            document.getElementById("tab-file").style.display = "none";
-            document.getElementById("tab-url").style.display = "none";
-            document.getElementById("tab-" + btn.dataset.tab).style.display = "block";
-        });
-    });
-</script>
 {% endblock %}

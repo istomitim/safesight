@@ -5,7 +5,7 @@
 {% block content %}
 <h1>Scan history</h1>
 <p><a href="{% url 'home' %}">← Back to scanner</a></p>
-<p style="color: #8b949e; margin-bottom: 1rem;">Total scans: {{ total }}</p>
+<p class="total-note">Total scans: {{ total }}</p>
 
 <table>
     <thead>
@@ -22,7 +22,7 @@
             <td>{{ scan.file_name }}</td>
             <td><span class="badge {{ scan.badge_class }}">{{ scan.verdict }}</span></td>
             <td>{{ scan.created_at|date:"d.m.Y H:i" }}</td>
-            <td style="font-family: monospace; font-size: 0.8rem; color: #8b949e;">{{ scan.file_hash|truncatechars:20 }}</td>
+            <td class="hash-cell">{{ scan.file_hash|truncatechars:20 }}</td>
         </tr>
         {% empty %}
         <tr><td colspan="4">No scans yet.</td></tr>

@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from .models import Scan, UrlScan
 from .services import check_hash_on_virustotal, check_url_on_virustotal, take_screenshot
 
-@login_required # # only logged-in users access
+@login_required # only logged-in users access
 def home(request):
     last_result = None
 

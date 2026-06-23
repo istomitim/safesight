@@ -61,14 +61,19 @@ def check_url_on_virustotal(url_to_check):
         return f"Dangerous ({malicious} engines flagged it)"
     return "Clean"
 
+
+
 # Web screenshot 
 def take_screenshot(url_to_capture):
-    filename = f"{uuid.uuid4().hex}.png" # generate unique file name
-    filepath = os.path.join(settings.MEDIA_ROOT, "screenshots", filename)
 
-    # Protection against broken sites
+    screenshots_dir = os.path.join(settings.MEDIA_ROOT, "screenshots")
+    os.makedirs(screenshots_dir, exist_ok=True)
+
+    # unique file name
+    filename = f"{int(time.time())}_{uuid.uuid4().hex}.png"
+    filepath = os.path.join(screenshots_dir, filename)
+
     try:
-        # Playwright - launch invisible Chromium
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             page = browser.new_page()

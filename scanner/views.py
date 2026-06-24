@@ -89,3 +89,9 @@ def history(request):
         "total": scans.count(),
     }
     return render(request, "scanner/history.html", context)
+
+
+
+
+
+

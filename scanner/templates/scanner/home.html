@@ -1,10 +1,9 @@
 {% extends "scanner/base.html" %}
+{% load static %}
 
 {% block title %}SafeSight — Scanner{% endblock %}
 
 {% block content %}
-
-<script>window.CSRF_TOKEN = "{{ csrf_token }}";</script>
 
 {# BLOK 1. ACTUAL CARD #}
 {% if last_result %}
@@ -30,76 +29,9 @@
 </div>
 {% endif %}
 
-{# BLOK 2: Tabs + forms (REACT) #} 
+{# BLOK 2: Tabs + forms, rendered by React #}
+<div id="scanner-tabs" data-csrf="{{ csrf_token }}"></div>
 
-<div id="scanner-tabs"></div>
-
-<script type="text/plain" id="scanner-source">
-function ScannerTabs() {
-    // which tab is active 
-    const [tab, setTab] = React.useState("file");
-
-    return (
-        <div className="card">
-            <div className="tabs">
-                <button type="button"
-                        className={"tab-btn" + (tab === "file" ? " active" : "")}
-                        onClick={() => setTab("file")}>
-                    <i className="ti ti-file"></i> File
-                </button>
-                <button type="button"
-                        className={"tab-btn" + (tab === "url" ? " active" : "")}
-                        onClick={() => setTab("url")}>
-                    <i className="ti ti-link"></i> Link
-                </button>
-            </div>
-
-            {tab === "file" && (
-                <div>
-                    <p className="muted-note">Upload a file to scan it for malware.</p>
-                    <form method="post" encType="multipart/form-data">
-                        <input type="hidden" name="csrfmiddlewaretoken" value={window.CSRF_TOKEN} />
-                        <input type="hidden" name="form_type" value="file" />
-                        <label htmlFor="fileInput" className="file-drop">
-                            <i className="ti ti-cloud-upload"></i>
-                            <span id="fileLabel">Choose a file or drag it here</span>
-                        </label>
-                        <input type="file" name="file" id="fileInput" required hidden
-                               onChange={(e) => {
-                                   if (e.target.files.length > 0) {
-                                       document.getElementById("fileLabel").textContent = e.target.files[0].name;
-                                   }
-                               }} />
-                        <button type="submit"><i className="ti ti-shield-check"></i> Check file</button>
-                    </form>
-                </div>
-            )}
-
-            {tab === "url" && (
-                <div>
-                    <p className="muted-note">Check a suspicious link without opening it yourself.</p>
-                    <form method="post">
-                        <input type="hidden" name="csrfmiddlewaretoken" value={window.CSRF_TOKEN} />
-                        <input type="hidden" name="form_type" value="url" />
-                        <input type="url" name="url" placeholder="https://example.com" required className="url-input" />
-                        <button type="submit"><i className="ti ti-shield-check"></i> Check link</button>
-                    </form>
-                </div>
-            )}
-        </div>
-    );
-}
-
-ReactDOM.createRoot(document.getElementById("scanner-tabs")).render(<ScannerTabs />);
-</script>
-
-<script>
-    (function () {
-        var source = document.getElementById("scanner-source").textContent;
-        var compiled = Babel.transform(source, { presets: [["react", { runtime: "classic" }]] }).code;
-        eval(compiled);
-    })();
-</script>
 
 
 {# BLOK 3: Recent scans #}
@@ -127,4 +59,8 @@ ReactDOM.createRoot(document.getElementById("scanner-tabs")).render(<ScannerTabs
     </ul>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/scanner_tabs.js' %}"></script>
 {% endblock %}
